@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="../d3.min.js"></script>
+
+	<style>
+	.axis path,   
+	.axis line{      		
+		fill: none;
+		stroke: black;
+		shape-rendering: crispEdges;
+	}
+
+	.axis text {
+		font-family: sans-serif;
+		font-size: 11px;
+	}
+
+	.MyRect {
+		/*fill: steelblue;*/
+	}
+
+	.MyText {
+		fill: white;
+		text-anchor: middle;
+	}
+</style>
+</head>
+<body>
+	<script type="text/javascript">
+		//画布大小
+		var width = 400;
+		var height = 400;
+
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width",width)
+					.attr("height",height);
+
+        var padding = {left:30,right:30,top:20,bottom:20};    //坐标轴的path 离左边30  
+		
+		var dataset = [10,20,30,40,33,24,12,5];
+
+		//比例尺的范围
+		var xScale = d3.scale.ordinal()
+		             .domain(d3.range(dataset.length)) //值域除了用数组，还可以设置一个参数即最大值
+		             .rangeRoundBands([0,width - padding.left - padding.right])	;
+
+		var yScale = d3.scale.linear()
+					   .domain([0,d3.max(dataset)])
+					   .range([height - padding.top - padding.bottom,0]);
+         
+        //坐标轴的定义 
+        var xAxis = d3.svg.axis()
+        			  .scale(xScale)
+        			  .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+        			  .scale(yScale)
+        			  .orient("left");
+
+
+        //柱形
+        var rectPadding = 4;
+
+        var rects = svg.selectAll(".Myrect")
+                       .data(dataset)
+                       .enter()
+                       .append("rect")
+                       .attr("class","MyRect")       // 改变默认黑色为蓝色
+
+                       // 每一个react  平移（30,20） ，即左上角在坐标轴的左上角
+                       .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+                       
+                       .attr("fill","steelblue")
+                       .on("mouseover",function(d,i){
+                       		d3.select(this).attr("fill","yellow");
+                       })
+                       .on("mouseout",function(d,i){
+                       		d3.select(this)
+                       		  .transition()
+                       		  .duration(500)
+                       		  .attr("fill","steelblue");
+                       })
+                       //矩形的x,y坐标,相对于坐标轴的左上角偏移
+                       .attr("x",function(d,i){
+                       		return xScale(i) + rectPadding / 2;
+                       })
+               
+                       //矩形的宽和高
+                       .attr("width",xScale.rangeBand() - rectPadding)
+
+ 
+                       //宽度不变，改变y和height
+                       //y是矩形的纵坐标，比例尺里面定义域越小，值域越大
+                       //height是矩形的高度
+                       .attr("y",function(d){
+                       	    var min = yScale.domain()[0];
+                       	    return yScale(min);
+                       })
+                       .attr("height",function(d){
+                       		return 0 ;
+                       })
+                       .transition()
+                       .delay(function(d,i){
+                       	return i*200;
+                       })
+                       .duration(2000)
+                       .ease("bounce")
+                       .attr("y",function(d){
+                       	return yScale(d);
+                       })
+                       
+                       .attr("height",function(d){
+                       		return height - padding.top - padding.bottom - yScale(d);
+                       })
+
+
+
+        //添加文字元素
+		var texts = svg.selectAll(".MyText")
+		        .data(dataset)
+		        .enter()
+		        .append("text")
+		        .attr("class","MyText")    //大小和颜色白
+		        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		        .attr("x", function(d,i){
+		            return xScale(i) + rectPadding/2;
+		        } )
+
+
+                //相对值，相对坐标x和y
+		        texts.attr("dx",function(){
+		            return (xScale.rangeBand() - rectPadding)/2;
+		        })
+
+		        .attr("dy",function(d){
+		            return 20;
+		        })
+
+		        .text(function(d){
+		            return d;
+		        })
+
+            
+                //只改变文字的纵坐标 
+		        .attr("y",function(d){
+		        	var min = yScale.domain()[0];
+		            return yScale(min);
+		        })
+		        .transition()
+		        .delay(function(d,i){
+		        	return i*200;
+		        })
+		        .duration(2000)
+		        .ease("bounce")
+		        .attr("y",function(d){
+		        	return yScale(d);
+		        });
+
+
+
+
+		//添加x轴
+		svg.append("g")
+		  .attr("class","axis")
+		  .attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+		  .call(xAxis); 
+		        
+		//添加y轴
+		svg.append("g")
+		  .attr("class","axis")
+		  .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		  .call(yAxis);     
+
+	</script>
+</body>
+</html>
