@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="../d3.min.js"></script>
+
+	<!-- src="http://d3js.org/d3.v3.min.js" -->
+
+</head>
+<body>
+	<script type="text/javascript">
+
+
+	   //定义画布
+
+		var width = 300;
+		var height = 300;
+
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width",width)
+					.attr("height",height);
+
+	    //生成布局数据
+		var dataset = [ 30 , 10 , 43 , 55 , 13 ];
+		var pie = d3.layout.pie();
+		var piedata = pie(dataset);     //piedata是五个对象，存放有弧度值
+
+		var outerRadius = 150;
+		var innerRadius = 0;
+
+        //弧生成器
+		var arcProRadian = d3.svg.arc() 
+					.innerRadius(innerRadius)
+					.outerRadius(outerRadius);
+
+       //生成g元素绑定布局数据
+		var arcSvgGroups = svg.selectAll("g")
+					  .data(piedata)    //绑定的数据
+					  .enter()
+					  .append("g")
+					  .attr("transform","translate("+ (width/2) +","+ (width/2) +")");	
+
+
+        //g元素里面画路径
+        var color = d3.scale.category10()
+
+	    arcSvgGroups.append("path")	
+	        .attr("fill",function(d,i){
+	        	return color(i);
+	        })			  		
+	        .attr("d",function(d){     //路径值的属性名称是 d，调用弧生成器后返回的值赋值给它。
+	        	return arcProRadian(d);    //调用弧生成器，得到路径值
+	        })    //参数d是元素g被绑定的数据
+
+        
+        //添加文本
+        arcSvgGroups.append("text")
+                    .attr("transform",function(d){
+                    	return "translate(" + arcProRadian.centroid(d) + ")";  
+                    	//arc.centroid(d) 能算出弧线的中心
+                    }) 
+
+                    .attr("text-anchor","middle")
+                    .text(function(d){
+                    	return d.data;
+                    });
+
+
+	</script>
+</body>
+</html>
