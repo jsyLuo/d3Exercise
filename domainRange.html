@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script type="text/javascript" src="../d3.min.js"></script>
+</head>
+<body>
+	
+<script type="text/javascript">
+	var width = 300;
+	var height = 300;
+
+
+    // 画布
+	var svg = d3.select("body")
+				.append("svg")
+				.attr("width",width)
+				.attr("height",height);
+
+    //
+    var dataset = [1.2,2.3,0.9,1.5,3.3];
+   
+    var min = d3.min(dataset);
+    var max = d3.max(dataset);
+
+    var linear = d3.scale.linear()     //返回线性比例尺
+                   .domain([min,max])
+                   .range([0,300]);
+
+    linear(0.9);
+    linear(2.3);
+    linear(3.3);
+
+
+    var index = [0,1,2,3,4];
+    var color = ["red","blue","green","yellow","black"];
+
+
+    //序数比例尺
+    var ordinal = d3.scale.ordinal()
+                    .domain(index)
+                    .range(color);
+
+    ordinal(0); 
+    ordinal(2);
+    ordinal(4);                
+</script>	
+</body>
+</html>
